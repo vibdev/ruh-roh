@@ -39,7 +39,7 @@ const assistantAgent = createAgent<NetworkState>({
 
 // Create a network with our agent
 const assistantNetwork = createNetwork<NetworkState>({
-  name: "Assistant Network",
+  name: "Ruh Roh Network",
   agents: [assistantAgent],
   router: async ({ network }) => {
     if (!network.state.data.response) {
