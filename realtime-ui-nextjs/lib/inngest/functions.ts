@@ -9,10 +9,12 @@ import {
 import { channel, topic } from "@inngest/realtime";
 
 import { inngest } from "./client";
+import { linkupSearchAgent } from '@/lib/inngest/linkupAgent';
 
 export interface NetworkState {
   // list of images to display
   imageList: string[];
+  websites: string[];
 }
 
 // create a channel for each discussion, given a thread ID. A channel is a namespace for one or more topics of streams.
@@ -55,7 +57,7 @@ export const networkFunction = inngest.createFunction(
       name: "Image List Agent",
       description: "Provides a list of product images to display",
       system:
-        "You are an image list agent. You are given a query and you need to provide a list of product images to display as absolute URLs.",
+        "You are an image list agent. You are given a query. You need to provide a list of product images, ideally between 6 and 9, from a specific site to display as absolute URLs. You can use the 'get_website' tool to get the URL of the website that sells the product we're looking for.",
       model: anthropic({
         model: "claude-3-5-haiku-latest",
         defaultParameters: {
@@ -72,6 +74,21 @@ export const networkFunction = inngest.createFunction(
         },
       ],
       tools: [
+        createTool({
+          name: "get_website",
+          description: "Get the URL of the website that sells the product we're looking for",
+          handler: (
+            _,
+            { network }: Tool.Options<NetworkState>
+          ) => {
+            // get random website from the list
+            const siteCount = network.state.data.websites.length;
+            const randomIndex = Math.floor(Math.random() * siteCount);
+            const website = network.state.data.websites[randomIndex];
+            return website;
+          },
+          
+        }),
         createTool({
           name: "provide_image_list",
           description: "Provide the image list as an array of absolute URLs",
@@ -99,48 +116,14 @@ export const networkFunction = inngest.createFunction(
       ],
     });
 
-    // const securityAgent = createAgent({
-    //   name: "Database Security Expert",
-    //   description:
-    //     "Provides expert guidance on PostgreSQL security, access control, audit logging, and compliance best practices",
-    //   system:
-    //     "You are a PostgreSQL security expert. " +
-    //     "Provide answers to questions linked to PostgreSQL security topics such as encryption, access control, audit logging, and compliance best practices.",
-    //   model: anthropic({
-    //     model: "claude-3-5-haiku-latest",
-    //     defaultParameters: {
-    //       max_tokens: 4096,
-    //     },
-    //   }),
-    //   tools: [
-    //     createTool({
-    //       name: "provide_answer",
-    //       description: "Provide the answer to the questions",
-    //       parameters: z.object({
-    //         answer: z.string(),
-    //       }),
-    //       handler: async (
-    //         { answer },
-    //         { network }: Tool.Options<NetworkState>
-    //       ) => {
-    //         network.state.data.security_agent_answer = answer;
-
-    //         await publish(
-    //           networkChannel(threadId).messages({
-    //             message: `The Security Expert Agent has the following recommendation: ${network.state.data.security_agent_answer}`,
-    //             id: crypto.randomUUID(),
-    //           })
-    //         );
-    //       },
-    //     }),
-    //   ],
-    // });
-
     const network = createNetwork<NetworkState>({
       name: "Test Agent Network",
-      agents: [imageListAgent],
-      router: async ({ network }) => {
-        if (!network.state.data.imageList) {
+      agents: [linkupSearchAgent, imageListAgent],
+      router: async (ev) => {
+        const { network } = ev;
+        if (!network.state.data.websites) {
+          return linkupSearchAgent;
+        } else if (!network.state.data.imageList) {
           return imageListAgent;
         }
       },

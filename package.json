@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "TODO",
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix host/client\" \"npm run start:all --prefix host/server\""
+    "predev": "npm run build --prefix mcp-browser",
+    "dev": "concurrently \"npm run dev --prefix realtime-ui-nextjs\" \"npx inngest-cli@latest dev\""
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
