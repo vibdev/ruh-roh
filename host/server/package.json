@@ -1,0 +1,24 @@
+{
+  "name": "ruh-roh-server",
+  "version": "1.0.0",
+  "description": "Backend server using Inngest AgentKit",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "start:inngest": "npx inngest-cli@latest dev -u http://localhost:3000/api/inngest",
+    "start:all": "concurrently \"npm run dev\" \"npm run start:inngest\""
+  },
+  "dependencies": {
+    "@inngest/agent-kit": "latest",
+    "dotenv-flow": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "concurrently": "^9.1.2",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3"
+  }
+}
