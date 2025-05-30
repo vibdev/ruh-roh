@@ -29,14 +29,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
       {
-        name: "get-dom-things",
-        description: "Get the DOM things for a website",
+        name: "get-product-images",
+        description: "Get the images of a product from a website",
         inputSchema: {
           type: "object",
           properties: {
             website: {
               type: "string",
-              description: "The website to get the DOM things for",
+              description: "The website to get the product images from",
             },
           },
           required: ["website"],
@@ -50,11 +50,11 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   try {
-    if (name === "get-dom-things") {
-			const buttons = await browserBase(args?.website as string)
+    if (name === "get-product-images") {
+			const images = await browserBase(args?.website as string)
 
 
-      return { content: [{ type: "text", text: buttons }] };
+      return { content: [{ type: "text", text: images }] };
     } else {
       throw new Error(`Unknown tool: ${name}`);
     }
@@ -84,8 +84,8 @@ app.post("/messages", (req, res) => {
 });
 
 async function main() {
-	console.log('Starting MCP Browser Server on port 3000')
-  app.listen(3000);
+	console.log('Starting MCP Browser Server on port 3001')
+  app.listen(3001);
 }
 
 main().catch((error) => {

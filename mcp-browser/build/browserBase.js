@@ -15,16 +15,15 @@ export const browserBase = async (website = 'https://playwright.dev') => {
     const page = defaultContext.pages()[0];
     const context = await browser.newContext();
     await page.goto(website);
-    const searchActionTarget = await getSearchActionTarget(page);
-    console.log(searchActionTarget);
-    if (searchActionTarget.length > 0) {
-        await page.goto(searchActionTarget[0]);
-    }
+    // const searchActionTarget = await getSearchActionTarget(page)
+    // console.log(searchActionTarget)
+    // if (searchActionTarget.length > 0) {
+    // 	await page.goto(searchActionTarget[0])
+    // }
     const client = await context.newCDPSession(page);
     await client.send('Accessibility.enable');
     // Get the full accessibility tree
     const { nodes } = await client.send('Accessibility.getFullAXTree');
-    console.log(nodes.filter(node => (node.role?.value === 'script')));
     // Filter for buttons
     const imgNodes = nodes.filter(node => (node.role?.value === 'image'));
     const imgSrcs = await Promise.all(imgNodes.map(async (axNode) => {
