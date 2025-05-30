@@ -3,10 +3,10 @@ import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import {
 	CallToolRequestSchema,
 	ListToolsRequestSchema,
-	ListToolsResultSchema
 } from "@modelcontextprotocol/sdk/types.js";
 import express from "express";
 import z from "zod";
+import { browserBase } from "./browserBase.js";
 
 const app = express();
 
@@ -27,17 +27,17 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
     tools: [
       {
-        name: "check-weather",
-        description: "Check the weather for a location",
+        name: "get-dom-things",
+        description: "Get the DOM things for a website",
         inputSchema: {
           type: "object",
           properties: {
-            location: {
+            website: {
               type: "string",
-              description: "The location to check the weather for",
+              description: "The website to get the DOM things for",
             },
           },
-          required: ["location"],
+          required: ["website"],
         },
       },
     ],
@@ -48,8 +48,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   try {
-    if (name === "check-weather") {
-      return { content: [{ type: "text", text: "sunny" }] };
+    if (name === "get-dom-things") {
+			const buttons = await browserBase(args?.website as string)
+      return { content: [{ type: "text", text: buttons }] };
     } else {
       throw new Error(`Unknown tool: ${name}`);
     }
@@ -79,6 +80,7 @@ app.post("/messages", (req, res) => {
 });
 
 async function main() {
+	console.log('Starting MCP Browser Server on port 3000')
   app.listen(3000);
 }
 

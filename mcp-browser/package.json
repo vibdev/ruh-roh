@@ -4,22 +4,24 @@
   "description": "MCP Server using SSE protocol",
   "main": "dist/index.js",
   "type": "module",
-	"bin": {
+  "bin": {
     "mcp-browser": "./build/index.js"
   },
   "scripts": {
     "build": "tsc && chmod 755 build/index.js"
   },
-	 "files": [
+  "files": [
     "build"
   ],
   "dependencies": {
+    "@browserbasehq/sdk": "^2.6.0",
     "@modelcontextprotocol/sdk": "^1.12.1",
-		"express": "^5.1.0",
+    "express": "^5.1.0",
+    "playwright-core": "^1.52.0",
     "zod": "^3.25.42"
   },
   "devDependencies": {
-		"@types/express": "^5.0.2",
+    "@types/express": "^5.0.2",
     "@types/node": "^20.17.56",
     "typescript": "^5.8.3"
   }
