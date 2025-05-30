@@ -17,7 +17,9 @@ const server = new Server(
   },
   {
     capabilities: {
-      tools: {}
+      tools: {
+				listChanged: true,
+			}
     }
   }
 );
@@ -50,6 +52,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     if (name === "get-dom-things") {
 			const buttons = await browserBase(args?.website as string)
+
+
       return { content: [{ type: "text", text: buttons }] };
     } else {
       throw new Error(`Unknown tool: ${name}`);

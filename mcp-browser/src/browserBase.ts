@@ -28,7 +28,7 @@ export const browserBase = async (website = 'https://playwright.dev') => {
   const { nodes } = await client.send('Accessibility.getFullAXTree');
 
   // Filter for buttons
-  const buttonNodes = nodes.filter(node => (node.role?.value === 'button'));
+  const buttonNodes = nodes.filter(node => (node.role?.value === 'image'));
 
 	const buttonNames = await Promise.all(buttonNodes.map(async (axNode) => {
 		 // Each AXNode usually has a backend DOM node reference
@@ -36,22 +36,21 @@ export const browserBase = async (website = 'https://playwright.dev') => {
 
     if (!backendDOMNodeId) return;
 
-    // Resolve backend node to objectId so we can evaluate it in page context
-    // const { object } = await client.send('DOM.resolveNode', {
-    //   backendNodeId: backendDOMNodeId,
-    // });
+    const { object } = await client.send('DOM.resolveNode', {
+      backendNodeId: backendDOMNodeId,
+    });
 
-    // // Evaluate in page context to log outerHTML
-    // const result = await client.send('Runtime.callFunctionOn', {
-    //   functionDeclaration: 'function() { return this.outerHTML; }',
-    //   objectId: object.objectId,
-    //   returnByValue: true,
-    // });
+    // Evaluate in page context to log outerHTML
+    const result = await client.send('Runtime.callFunctionOn', {
+            functionDeclaration: `function() { return this.src.startsWith('http') ? this.src : \`${website}\${this.src.startsWith('/') ? this.src : \`/\${this.src}\`}\` }`,
+      objectId: object.objectId,
+      returnByValue: true,
+    });
 
-    console.log(`🔘 Button AX Name: ${axNode.name?.value || '(no name)'}`);
-    // console.log(`🧱 Corresponding DOM: ${result.result.value}`);
+    // console.log(`🔘 Button AX Name: ${axNode.name?.value || '(no name)'}`);
+    console.log(`🧱 Corresponding DOM: ${result.result.value}`);
     console.log('---');
-		return axNode.name?.value || null
+		return result.result.value || null
 	}))
 
 

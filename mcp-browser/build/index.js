@@ -10,7 +10,9 @@ const server = new Server({
     version: "1.0.0"
 }, {
     capabilities: {
-        tools: {}
+        tools: {
+            listChanged: true,
+        }
     }
 });
 server.setRequestHandler(ListToolsRequestSchema, async () => {
