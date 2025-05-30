@@ -15,9 +15,11 @@
   ],
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.1",
+		"express": "^5.1.0",
     "zod": "^3.25.42"
   },
   "devDependencies": {
+		"@types/express": "^5.0.2",
     "@types/node": "^20.17.56",
     "typescript": "^5.8.3"
   }

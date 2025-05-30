@@ -1,8 +1,11 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import {
 	ListToolsRequestSchema
 } from "@modelcontextprotocol/sdk/types.js";
+import express from "express";
+
+const app = express();
 
 const server = new Server(
   {
@@ -33,10 +36,21 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
   };
 });
 
+let transport: SSEServerTransport | null = null;
+
+app.get("/sse", (req, res) => {
+  transport = new SSEServerTransport("/messages", res);
+  server.connect(transport);
+});
+
+app.post("/messages", (req, res) => {
+  if (transport) {
+    transport.handlePostMessage(req, res);
+  }
+});
+
 async function main() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error("MCP Server running on stdio");
+  app.listen(3000);
 }
 
 main().catch((error) => {
