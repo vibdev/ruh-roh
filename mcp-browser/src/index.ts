@@ -1,9 +1,12 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import {
-	ListToolsRequestSchema
+	CallToolRequestSchema,
+	ListToolsRequestSchema,
+	ListToolsResultSchema
 } from "@modelcontextprotocol/sdk/types.js";
 import express from "express";
+import z from "zod";
 
 const app = express();
 
@@ -19,21 +22,47 @@ const server = new Server(
   }
 );
 
+
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
-    tools: [{
-      name: "browser",
-      description: "Browse the web",
-			handler: async (args: any) => {
-				console.log('test', args)
-			},
-      arguments: [{
-        name: "arg1",
-        description: "Example argument",
-        required: true
-      }]
-    }]
+    tools: [
+      {
+        name: "check-weather",
+        description: "Check the weather for a location",
+        inputSchema: {
+          type: "object",
+          properties: {
+            location: {
+              type: "string",
+              description: "The location to check the weather for",
+            },
+          },
+          required: ["location"],
+        },
+      },
+    ],
   };
+});
+
+server.setRequestHandler(CallToolRequestSchema, async (request) => {
+  const { name, arguments: args } = request.params;
+
+  try {
+    if (name === "check-weather") {
+      return { content: [{ type: "text", text: "sunny" }] };
+    } else {
+      throw new Error(`Unknown tool: ${name}`);
+    }
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      throw new Error(
+        `Invalid arguments: ${error.errors
+          .map((e) => `${e.path.join(".")}: ${e.message}`)
+          .join(", ")}`,
+      );
+    }
+    throw error;
+  }
 });
 
 let transport: SSEServerTransport | null = null;
