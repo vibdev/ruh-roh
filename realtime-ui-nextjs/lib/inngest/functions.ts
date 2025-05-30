@@ -62,18 +62,27 @@ export const networkFunction = inngest.createFunction(
           max_tokens: 4096,
         },
       }),
+      mcpServers: [
+        {
+          name: "mcp-browser",
+          transport: {
+            type: "sse",
+            url: "http://localhost:3001/sse",
+          },
+        },
+      ],
       tools: [
         createTool({
           name: "provide_image_list",
           description: "Provide the image list as an array of absolute URLs",
           parameters: z.object({
-            imageList: z.array(z.string()),
+            imageList: z.string(),
           }),
           handler: async (
             { imageList },
             { network }: Tool.Options<NetworkState>
           ) => {
-            network.state.data.imageList = imageList;
+            network.state.data.imageList = JSON.parse(imageList);
 
             await publish(
               networkChannel(threadId).messages({
@@ -85,6 +94,7 @@ export const networkFunction = inngest.createFunction(
               })
             );
           },
+          
         }),
       ],
     });

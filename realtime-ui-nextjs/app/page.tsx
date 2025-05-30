@@ -64,9 +64,11 @@ export default function Home() {
               >
                 <div className="max-w-[80%] px-4 py-2 rounded-lg text-sm whitespace-pre-line break-words shadow-md bg-[#232329] text-[#e5e5e5] rounded-bl-none border border-[#232329]">
                   {message.data.message.text}
-                  {message.data.message.imageList.map((image) => (
-                    <img src={image} alt="Product" className="w-32 h-32 object-cover rounded-lg" />
-                  ))}
+                  <div className="grid grid-cols-2 gap-4 mt-4">
+                    {message.data.message.imageList.map((image) => (
+                      <img key={image} src={image} alt="Product" className="w-full h-48 object-cover rounded-lg" />
+                    ))}
+                  </div>
                 </div>
               </div>
             ) : (
