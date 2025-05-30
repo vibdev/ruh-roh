@@ -1,4 +1,4 @@
-import { chromium } from "playwright-core";
+import { chromium, Page } from "playwright-core";
 import Browserbase from "@browserbasehq/sdk";
 
 const bb = new Browserbase({
@@ -21,16 +21,24 @@ export const browserBase = async (website = 'https://playwright.dev') => {
 
   await page.goto(website);
 
+	// const searchActionTarget = await getSearchActionTarget(page)
+	// console.log(searchActionTarget)
+
+	// if (searchActionTarget.length > 0) {
+	// 	await page.goto(searchActionTarget[0])
+	// }
+
   const client = await context.newCDPSession(page);
   await client.send('Accessibility.enable');
+
 
   // Get the full accessibility tree
   const { nodes } = await client.send('Accessibility.getFullAXTree');
 
   // Filter for buttons
-  const buttonNodes = nodes.filter(node => (node.role?.value === 'image'));
+  const imgNodes = nodes.filter(node => (node.role?.value === 'image'));
 
-	const buttonNames = await Promise.all(buttonNodes.map(async (axNode) => {
+	const imgSrcs = await Promise.all(imgNodes.map(async (axNode) => {
 		 // Each AXNode usually has a backend DOM node reference
     const backendDOMNodeId = axNode.backendDOMNodeId;
 
@@ -57,5 +65,37 @@ export const browserBase = async (website = 'https://playwright.dev') => {
   await page.close();
   await browser.close();
   console.log(`Session complete! View replay at https://browserbase.com/sessions/${session.id}`);
-	return buttonNames.filter(Boolean).join(', ')
+	return imgSrcs.filter(Boolean).join()
 }
+
+const getSearchActionTarget = async (page: Page) => {
+	console.log('getting search action target')
+	const documentHandle: HTMLElement = await page.evaluate('document');
+
+		console.log('evaluating')
+    const scripts = documentHandle.querySelectorAll('script[type="application/ld+json"]');
+		console.log('s', scripts)
+		console.log('sl',scripts.length)
+    const targets: string[] = [];
+
+		console.log(scripts)
+
+    Array.from(scripts).forEach(script => {
+			console.log(script.textContent)
+      try {
+        const data = JSON.parse(script.textContent || '');
+        // Handle both single objects and arrays of objects
+        const schemas = Array.isArray(data) ? data : [data];
+
+        schemas.forEach(schema => {
+          if (schema.potentialAction?.type === "SearchAction" && schema.potentialAction.target) {
+            targets.push(schema.potentialAction.target);
+          }
+        });
+      } catch (e) {
+        // Skip invalid JSON
+      }
+    });
+
+    return targets;
+};
