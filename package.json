@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "TODO",
   "scripts": {
-    "dev": "concurrently \"npm run dev --prefix host/web\" \"npm run start:all --prefix host/server\""
+    "dev": "concurrently \"npm run dev --prefix host/client\" \"npm run start:all --prefix host/server\""
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
