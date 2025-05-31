@@ -9,7 +9,7 @@ import {
 import { createSmitheryUrl } from "@smithery/sdk/shared/config.js";
 import { z } from "zod";
 
-const smitheryUrl = createSmitheryUrl("https://server.smithery.ai/mcp-search-linkup/mcp?api_key=252ca6cc-1d90-463e-8c96-5c43e1d5974f");
+const smitheryUrl = createSmitheryUrl("https://server.smithery.ai/mcp-search-linkup/mcp", { apiKey: process.env.SMITHERY_API_KEY });
 
 export const linkupSearchAgent = createAgent({
   name: "linkup-search-agent",
@@ -37,7 +37,7 @@ export const linkupSearchAgent = createAgent({
     {
       name: "mcp-search-linkup",
       transport: {
-        type: "ws",
+        type: "streamable-http",
         url: smitheryUrl.toString(),
       },
     },
