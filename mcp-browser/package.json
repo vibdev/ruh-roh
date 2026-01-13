@@ -15,7 +15,7 @@
   ],
   "dependencies": {
     "@browserbasehq/sdk": "^2.6.0",
-    "@modelcontextprotocol/sdk": "^1.12.1",
+    "@modelcontextprotocol/sdk": "^1.25.1",
     "express": "^5.1.0",
     "playwright-core": "^1.52.0",
     "zod": "^3.25.42"
